@@ -21,20 +21,23 @@ const testTitles: Record<TestType, string> = {
 
 // Emoji mappings for images
 const imageEmojis: Record<string, string> = {
-  cat: "🐱", dog: "🐶", sun: "☀️", moon: "🌙", tree: "🌳",
-  fish: "🐟", bird: "🐦", flower: "🌸", ball: "⚽", apple: "🍎",
-  house: "🏠", car: "🚗", book: "📚", lion: "🦁", star: "⭐",
-  elephant: "🐘", rainbow: "🌈", butterfly: "🦋", frog: "🐸", umbrella: "☂️",
-  guitar: "🎸", bicycle: "🚲", penguin: "🐧", robot: "🤖", rocket: "🚀",
-  // Word mappings
-  CAT: "🐱", DOG: "🐶", SUN: "☀️", MOON: "🌙", TREE: "🌳",
-  FISH: "🐟", BIRD: "🐦", FLOWER: "🌸", BALL: "⚽", APPLE: "🍎",
-  HOUSE: "🏠", CAR: "🚗", BOOK: "📚", LION: "🦁", STAR: "⭐",
-  ELEPHANT: "🐘", RAINBOW: "🌈", BUTTERFLY: "🦋", FROG: "🐸", UMBRELLA: "☂️",
-  GUITAR: "🎸", BICYCLE: "🚲", PENGUIN: "🐧", ROBOT: "🤖", ROCKET: "🚀",
-  NEST: "🪹", RAIN: "🌧️", HEN: "🐔", BEAUTIFUL: "🌺", CROCODILE: "🐊",
-  STRAWBERRY: "🍓", HELICOPTER: "🚁", CATERPILLAR: "🐛", HIPPOPOTAMUS: "🦛",
-  ENCYCLOPEDIA: "📖", REFRIGERATOR: "🧊", CHRYSANTHEMUM: "🌼",
+  // Level 1: 2-3 letter words
+  cat: "🐱", dog: "🐶", sun: "☀️", cup: "☕", bed: "🛏️",
+  // Level 2: 3-4 letter easy
+  ball: "⚽", fish: "🐟", hat: "🎩", star: "⭐", cake: "🎂",
+  // Level 3: 3-4 letter harder
+  frog: "🐸", bird: "🐦", moon: "🌙", tree: "🌳", book: "📚",
+  // Level 4: 4-5 letter easy
+  apple: "🍎", house: "🏠", heart: "❤️", flower: "🌸", cloud: "☁️",
+  // Level 5: Slightly harder
+  tiger: "🐯", rabbit: "🐰", rainbow: "🌈", banana: "🍌", orange: "🍊",
+  // Uppercase versions
+  CAT: "🐱", DOG: "🐶", SUN: "☀️", CUP: "☕", BED: "🛏️",
+  BALL: "⚽", FISH: "🐟", HAT: "🎩", STAR: "⭐", CAKE: "🎂",
+  FROG: "🐸", BIRD: "🐦", MOON: "🌙", TREE: "🌳", BOOK: "📚",
+  APPLE: "🍎", HOUSE: "🏠", HEART: "❤️", FLOWER: "🌸", CLOUD: "☁️",
+  TIGER: "🐯", RABBIT: "🐰", RAINBOW: "🌈", BANANA: "🍌", ORANGE: "🍊",
+  HAPPY: "😊",
 };
 
 const getImageEmoji = (key: string): string => {

@@ -10,8 +10,8 @@ const Index = () => {
   // In a real app, this would come from a database/localStorage
   const [progress] = useState({
     caseRecognition: { completed: 0, unlocked: true },
-    pictureWord: { completed: 0, unlocked: false },
-    pronunciation: { completed: 0, unlocked: false },
+    pictureWord: { completed: 0, unlocked: true },
+    pronunciation: { completed: 0, unlocked: true },
   });
 
   return (
@@ -59,7 +59,7 @@ const Index = () => {
               Your Learning Path
             </h2>
             <p className="text-muted-foreground">
-              Complete each test to unlock the next adventure!
+              Choose any test to begin your adventure!
             </p>
           </div>
 

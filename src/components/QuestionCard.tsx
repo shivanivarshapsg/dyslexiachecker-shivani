@@ -68,10 +68,19 @@ export const QuestionCard = ({
       setTranscription(transcript);
       setIsRecording(false);
       
-      // Check if pronunciation matches (with some flexibility)
-      const isMatch = transcript.includes(item.correctAnswer) || 
-                      item.correctAnswer.includes(transcript) ||
-                      transcript === item.correctAnswer;
+      // Normalize both strings: remove punctuation, extra spaces, convert to uppercase
+      const normalizeWord = (word: string) => {
+        return word
+          .toUpperCase()
+          .trim()
+          .replace(/[^A-Z]/g, ''); // Remove anything that's not a letter
+      };
+      
+      const normalizedTranscript = normalizeWord(transcript);
+      const normalizedCorrect = normalizeWord(item.correctAnswer);
+      
+      // EXACT match only - no partial matching
+      const isMatch = normalizedTranscript === normalizedCorrect;
       
       setSelectedAnswer(isMatch ? item.correctAnswer : transcript);
       setShowResult(true);
@@ -81,7 +90,7 @@ export const QuestionCard = ({
         setSelectedAnswer(null);
         setShowResult(false);
         setTranscription("");
-      }, 2000);
+      }, 2500);
     };
 
     recognition.onerror = () => {

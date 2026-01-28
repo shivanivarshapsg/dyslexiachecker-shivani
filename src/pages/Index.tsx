@@ -1,21 +1,58 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { TestCard } from "@/components/TestCard";
 import { Button } from "@/components/ui/button";
-import { Type, Image, Mic, Sparkles, BookOpen, Trophy, ChevronRight } from "lucide-react";
+import { Type, Image, Mic, Sparkles, BookOpen, Trophy, ChevronRight, LogIn, LogOut, User } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, signOut, loading } = useAuth();
   
-  // In a real app, this would come from a database/localStorage
   const [progress] = useState({
     caseRecognition: { completed: 0, unlocked: true },
     pictureWord: { completed: 0, unlocked: true },
     pronunciation: { completed: 0, unlocked: true },
   });
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <div className="min-h-screen">
+      {/* User status bar */}
+      <div className="bg-card/80 backdrop-blur-md border-b border-border px-4 py-3">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-primary" />
+            <span className="font-bold text-foreground">DyslexiCheck</span>
+          </div>
+          
+          {!loading && (
+            <div className="flex items-center gap-3">
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">{user.email}</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login / Sign Up
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Hero section */}
       <header className="relative overflow-hidden px-4 py-12 sm:py-20">
         <div className="absolute inset-0 gradient-warm opacity-10" />
@@ -47,6 +84,16 @@ const Index = () => {
               <BookOpen className="w-6 h-6 mr-2" />
               Start Learning
             </Button>
+            {!user && (
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => navigate("/auth")}
+              >
+                <LogIn className="w-5 h-5 mr-2" />
+                Sign Up to Save Progress
+              </Button>
+            )}
           </div>
         </div>
       </header>

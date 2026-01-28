@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
 import { caseRecognitionData, pictureWordData, pronunciationData, learningContent } from "@/data/testData";
 import { LevelResult, TestResult } from "@/types/test";
+import { useTestScores } from "@/hooks/useTestScores";
 
 type TestType = "case-recognition" | "picture-word" | "pronunciation";
 type Phase = "learning" | "testing" | "level-result" | "test-result";
@@ -47,6 +48,7 @@ const getImageEmoji = (key: string): string => {
 export default function TestScreen() {
   const navigate = useNavigate();
   const { testType } = useParams<{ testType: TestType }>();
+  const { saveScore } = useTestScores();
   
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -105,15 +107,27 @@ export default function TestScreen() {
     } else {
       // Level complete
       setTimerRunning(false);
+      const finalCorrectAnswers = isCorrect ? correctAnswers + 1 : correctAnswers;
       const result: LevelResult = {
         level: currentLevel,
         timeTaken: currentTime,
-        correctAnswers: isCorrect ? correctAnswers + 1 : correctAnswers,
+        correctAnswers: finalCorrectAnswers,
         totalQuestions: currentLevelData.items.length,
-        errors: currentLevelData.items.length - (isCorrect ? correctAnswers + 1 : correctAnswers),
+        errors: currentLevelData.items.length - finalCorrectAnswers,
       };
       setCurrentLevelResult(result);
       setPhase("level-result");
+      
+      // Save score to database
+      const passed = (finalCorrectAnswers / currentLevelData.items.length) >= 0.6;
+      saveScore({
+        testType: testType || "unknown",
+        level: currentLevel,
+        correctAnswers: finalCorrectAnswers,
+        totalQuestions: currentLevelData.items.length,
+        timeTaken: currentTime,
+        passed,
+      });
     }
   };
 

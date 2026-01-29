@@ -7,7 +7,7 @@ import { Timer } from "@/components/Timer";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
-import { caseRecognitionData, pictureWordData, pronunciationData, learningContent, shuffleTestItems } from "@/data/testData";
+import { caseRecognitionData, pictureWordData, pronunciationData, learningContent } from "@/data/testData";
 import { LevelResult, TestResult } from "@/types/test";
 import { useTestScores } from "@/hooks/useTestScores";
 
@@ -59,17 +59,17 @@ export default function TestScreen() {
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [currentLevelResult, setCurrentLevelResult] = useState<LevelResult | null>(null);
 
-  // Get test data based on type (with shuffled options)
+  // Get test data based on type
   const getTestData = useCallback(() => {
     switch (testType) {
       case "case-recognition":
-        return shuffleTestItems(caseRecognitionData);
+        return caseRecognitionData;
       case "picture-word":
-        return shuffleTestItems(pictureWordData);
+        return pictureWordData;
       case "pronunciation":
-        return shuffleTestItems(pronunciationData);
+        return pronunciationData;
       default:
-        return shuffleTestItems(caseRecognitionData);
+        return caseRecognitionData;
     }
   }, [testType]);
 

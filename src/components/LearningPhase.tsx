@@ -22,11 +22,14 @@ export const LearningPhase = ({
   getImageEmoji,
 }: LearningPhaseProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // For case recognition, show letters only (no words)
+  // For other tests, show words
   const items = testType === "caseRecognition" && content.letters 
-    ? [...content.letters, ...content.words]
+    ? content.letters
     : content.words;
 
-  const isLetter = testType === "caseRecognition" && currentIndex < (content.letters?.length || 0);
+  const isLetter = testType === "caseRecognition";
 
   const speakWord = (word: string) => {
     const utterance = new SpeechSynthesisUtterance(word.toLowerCase());

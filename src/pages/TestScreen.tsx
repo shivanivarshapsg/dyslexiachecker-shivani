@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home } from "lucide-react";
 import { caseRecognitionData, pictureWordData, pronunciationData, learningContent } from "@/data/testData";
 import { LevelResult, TestResult } from "@/types/test";
-import { useTestScores } from "@/hooks/useTestScores";
+import { useUserResults } from "@/hooks/useUserResults";
 
 type TestType = "case-recognition" | "picture-word" | "pronunciation";
 type Phase = "learning" | "testing" | "level-result" | "test-result";
@@ -48,7 +48,7 @@ const getImageEmoji = (key: string): string => {
 export default function TestScreen() {
   const navigate = useNavigate();
   const { testType } = useParams<{ testType: TestType }>();
-  const { saveScore } = useTestScores();
+  const { updatePictureMatching, updateLetterRecognition, updatePronunciation, updateOverallRiskScore } = useUserResults();
   
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -97,6 +97,39 @@ export default function TestScreen() {
     setCorrectAnswers(0);
   };
 
+  // Save results to database based on test type
+  const saveTestResults = async (finalCorrectAnswers: number, totalQuestions: number, timeTaken: number) => {
+    const accuracy = (finalCorrectAnswers / totalQuestions) * 100;
+    const errorRate = ((totalQuestions - finalCorrectAnswers) / totalQuestions) * 100;
+    
+    switch (testType) {
+      case "picture-word":
+        await updatePictureMatching({
+          accuracy,
+          avgTime: timeTaken,
+        });
+        break;
+      case "case-recognition":
+        await updateLetterRecognition({
+          confusion: errorRate, // Confusion = error rate for letter matching
+          avgTime: timeTaken,
+        });
+        break;
+      case "pronunciation":
+        // Calculate WPM based on total questions and time
+        const wpm = totalQuestions > 0 && timeTaken > 0 ? (totalQuestions / timeTaken) * 60 : 0;
+        await updatePronunciation({
+          wpm,
+          phonemeError: errorRate,
+          riskScore: errorRate, // Higher error = higher risk
+        });
+        break;
+    }
+    
+    // Update overall risk score after each test
+    await updateOverallRiskScore();
+  };
+
   const handleAnswer = (isCorrect: boolean) => {
     if (isCorrect) {
       setCorrectAnswers((prev) => prev + 1);
@@ -118,16 +151,8 @@ export default function TestScreen() {
       setCurrentLevelResult(result);
       setPhase("level-result");
       
-      // Save score to database
-      const passed = (finalCorrectAnswers / currentLevelData.items.length) >= 0.6;
-      saveScore({
-        testType: testType || "unknown",
-        level: currentLevel,
-        correctAnswers: finalCorrectAnswers,
-        totalQuestions: currentLevelData.items.length,
-        timeTaken: currentTime,
-        passed,
-      });
+      // Save results to database
+      saveTestResults(finalCorrectAnswers, currentLevelData.items.length, currentTime);
     }
   };
 

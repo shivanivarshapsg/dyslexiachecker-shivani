@@ -41,38 +41,56 @@ export type Database = {
         }
         Relationships: []
       }
-      test_scores: {
+      user_results: {
         Row: {
-          correct_answers: number
           created_at: string
           id: string
-          level: number
-          passed: boolean
-          test_type: string
-          time_taken: number
-          total_questions: number
+          letter_recognition_avg_time: number | null
+          letter_recognition_confusion: number | null
+          letter_recognition_tests_completed: number | null
+          overall_risk_score: number | null
+          picture_matching_accuracy: number | null
+          picture_matching_avg_time: number | null
+          picture_matching_tests_completed: number | null
+          pronunciation_phoneme_error: number | null
+          pronunciation_risk_score: number | null
+          pronunciation_tests_completed: number | null
+          pronunciation_wpm: number | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          correct_answers: number
           created_at?: string
           id?: string
-          level: number
-          passed?: boolean
-          test_type: string
-          time_taken: number
-          total_questions: number
+          letter_recognition_avg_time?: number | null
+          letter_recognition_confusion?: number | null
+          letter_recognition_tests_completed?: number | null
+          overall_risk_score?: number | null
+          picture_matching_accuracy?: number | null
+          picture_matching_avg_time?: number | null
+          picture_matching_tests_completed?: number | null
+          pronunciation_phoneme_error?: number | null
+          pronunciation_risk_score?: number | null
+          pronunciation_tests_completed?: number | null
+          pronunciation_wpm?: number | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          correct_answers?: number
           created_at?: string
           id?: string
-          level?: number
-          passed?: boolean
-          test_type?: string
-          time_taken?: number
-          total_questions?: number
+          letter_recognition_avg_time?: number | null
+          letter_recognition_confusion?: number | null
+          letter_recognition_tests_completed?: number | null
+          overall_risk_score?: number | null
+          picture_matching_accuracy?: number | null
+          picture_matching_avg_time?: number | null
+          picture_matching_tests_completed?: number | null
+          pronunciation_phoneme_error?: number | null
+          pronunciation_risk_score?: number | null
+          pronunciation_tests_completed?: number | null
+          pronunciation_wpm?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

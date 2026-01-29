@@ -1,62 +1,143 @@
-import { LevelData } from '@/types/test';
+import { LevelData, LevelItem } from '@/types/test';
 
-// Test 1: Case Recognition & Spelling
-// Level 1: 2-3 letter simple words
-// Level 2: 3-4 letter easy words
-// Level 3: 3-4 letter harder words
-// Level 4: 4-5 letter easy words
-// Level 5: Slightly harder than level 4
+// Utility function to shuffle an array (Fisher-Yates shuffle)
+export const shuffleArray = <T>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
+// Function to shuffle options in test items
+export const shuffleTestItems = (data: LevelData[]): LevelData[] => {
+  return data.map(level => ({
+    ...level,
+    items: shuffleArray(level.items.map(item => ({
+      ...item,
+      options: item.options.length > 0 ? shuffleArray(item.options) : item.options
+    })))
+  }));
+};
+
+// All 26 letters distributed across 5 levels (approximately 5-6 letters per level)
+// Each question shows uppercase and asks for lowercase match (or vice versa)
+const allLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+// Generate confusing distractors for each letter
+const getDistractors = (letter: string, isUpperToLower: boolean): string[] => {
+  const confusingPairs: Record<string, string[]> = {
+    'A': ['a', 'e', 'o', 'u'],
+    'B': ['b', 'd', 'p', 'q'],
+    'C': ['c', 'o', 'e', 's'],
+    'D': ['d', 'b', 'p', 'q'],
+    'E': ['e', 'a', 'i', 'o'],
+    'F': ['f', 't', 'l', 'i'],
+    'G': ['g', 'q', 'p', 'j'],
+    'H': ['h', 'n', 'm', 'u'],
+    'I': ['i', 'l', 'j', 't'],
+    'J': ['j', 'i', 'l', 'g'],
+    'K': ['k', 'x', 'h', 'l'],
+    'L': ['l', 'i', 't', 'j'],
+    'M': ['m', 'n', 'w', 'h'],
+    'N': ['n', 'm', 'h', 'u'],
+    'O': ['o', 'c', 'e', 'a'],
+    'P': ['p', 'b', 'd', 'q'],
+    'Q': ['q', 'p', 'g', 'b'],
+    'R': ['r', 'n', 'k', 'p'],
+    'S': ['s', 'z', 'c', 'o'],
+    'T': ['t', 'l', 'i', 'f'],
+    'U': ['u', 'v', 'n', 'w'],
+    'V': ['v', 'u', 'w', 'y'],
+    'W': ['w', 'm', 'v', 'u'],
+    'X': ['x', 'k', 'z', 'y'],
+    'Y': ['y', 'v', 'u', 'g'],
+    'Z': ['z', 's', 'x', 'n'],
+  };
+  
+  const distractorsLower = confusingPairs[letter.toUpperCase()] || ['a', 'b', 'c', 'd'];
+  
+  if (isUpperToLower) {
+    // Return lowercase options (correct answer is lowercase of the letter)
+    return distractorsLower;
+  } else {
+    // Return uppercase options (correct answer is uppercase of the letter)
+    return distractorsLower.map(l => l.toUpperCase());
+  }
+};
+
+// Create letter matching items for each letter
+const createLetterItems = (letters: string[], levelNum: number): LevelItem[] => {
+  const items: LevelItem[] = [];
+  
+  letters.forEach((letter, index) => {
+    // Alternate between uppercase-to-lowercase and lowercase-to-uppercase
+    const isUpperToLower = index % 2 === 0;
+    const questionLetter = isUpperToLower ? letter.toUpperCase() : letter.toLowerCase();
+    const correctAnswer = isUpperToLower ? letter.toLowerCase() : letter.toUpperCase();
+    const questionType = isUpperToLower ? 'uppercase' : 'lowercase';
+    
+    const distractors = getDistractors(letter, isUpperToLower);
+    // Make sure correct answer is in options and we have exactly 4 options
+    const optionsSet = new Set(distractors);
+    optionsSet.add(correctAnswer);
+    const optionsArray = Array.from(optionsSet).slice(0, 4);
+    
+    // Ensure we have exactly 4 options
+    while (optionsArray.length < 4) {
+      const randomLetter = String.fromCharCode(97 + Math.floor(Math.random() * 26));
+      const option = isUpperToLower ? randomLetter : randomLetter.toUpperCase();
+      if (!optionsArray.includes(option)) {
+        optionsArray.push(option);
+      }
+    }
+    
+    items.push({
+      id: `${levelNum}-${index + 1}`,
+      type: 'letter-match',
+      question: `Match the ${questionType} letter: ${questionLetter}`,
+      options: optionsArray,
+      correctAnswer: correctAnswer,
+    });
+  });
+  
+  return items;
+};
+
+// Level 1: A-E (5 letters)
+// Level 2: F-K (6 letters)
+// Level 3: L-Q (6 letters)
+// Level 4: R-V (5 letters)
+// Level 5: W-Z (4 letters) + confusing pairs review (B/D, P/Q)
+
+const level1Letters = ['A', 'B', 'C', 'D', 'E'];
+const level2Letters = ['F', 'G', 'H', 'I', 'J', 'K'];
+const level3Letters = ['L', 'M', 'N', 'O', 'P', 'Q'];
+const level4Letters = ['R', 'S', 'T', 'U', 'V'];
+const level5Letters = ['W', 'X', 'Y', 'Z'];
+
+// Test 1: Complete Case Recognition (all 26 letters across 5 levels)
 export const caseRecognitionData: LevelData[] = [
   {
     level: 1,
-    items: [
-      { id: '1-1', type: 'letter-match', question: 'Match the uppercase letter: A', options: ['a', 'b', 'c', 'd'], correctAnswer: 'a' },
-      { id: '1-2', type: 'letter-match', question: 'Match the uppercase letter: B', options: ['d', 'b', 'a', 'c'], correctAnswer: 'b' },
-      { id: '1-3', type: 'fill-blank', question: 'C_T (says meow)', options: ['A', 'O', 'U', 'E'], correctAnswer: 'A' },
-      { id: '1-4', type: 'letter-match', question: 'Match the lowercase letter: d', options: ['B', 'D', 'P', 'Q'], correctAnswer: 'D' },
-      { id: '1-5', type: 'fill-blank', question: 'D_G (says woof)', options: ['O', 'A', 'U', 'I'], correctAnswer: 'O' },
-    ]
+    items: createLetterItems(level1Letters, 1)
   },
   {
     level: 2,
-    items: [
-      { id: '2-1', type: 'letter-match', question: 'Match the uppercase letter: S', options: ['s', 'z', 'c', 'o'], correctAnswer: 's' },
-      { id: '2-2', type: 'fill-blank', question: 'S_N (shines bright)', options: ['U', 'A', 'O', 'I'], correctAnswer: 'U' },
-      { id: '2-3', type: 'letter-match', question: 'Match the lowercase letter: h', options: ['H', 'N', 'M', 'K'], correctAnswer: 'H' },
-      { id: '2-4', type: 'fill-blank', question: 'H_T (on your head)', options: ['A', 'O', 'U', 'I'], correctAnswer: 'A' },
-      { id: '2-5', type: 'fill-blank', question: 'C_P (for drinking)', options: ['U', 'A', 'O', 'I'], correctAnswer: 'U' },
-    ]
+    items: createLetterItems(level2Letters, 2)
   },
   {
     level: 3,
-    items: [
-      { id: '3-1', type: 'fill-blank', question: 'FR_G (says ribbit)', options: ['O', 'A', 'U', 'I'], correctAnswer: 'O' },
-      { id: '3-2', type: 'letter-match', question: 'Match the lowercase letter: p', options: ['P', 'B', 'D', 'Q'], correctAnswer: 'P' },
-      { id: '3-3', type: 'fill-blank', question: 'ST_R (twinkles at night)', options: ['A', 'E', 'O', 'U'], correctAnswer: 'A' },
-      { id: '3-4', type: 'letter-match', question: 'Match the uppercase letter: M', options: ['n', 'm', 'w', 'u'], correctAnswer: 'm' },
-      { id: '3-5', type: 'fill-blank', question: 'F_SH (swims in water)', options: ['I', 'A', 'O', 'U'], correctAnswer: 'I' },
-    ]
+    items: createLetterItems(level3Letters, 3)
   },
   {
     level: 4,
-    items: [
-      { id: '4-1', type: 'letter-match', question: 'Match the uppercase letter: T', options: ['t', 'l', 'i', 'f'], correctAnswer: 't' },
-      { id: '4-2', type: 'fill-blank', question: 'M_ON (in the sky at night)', options: ['O', 'A', 'U', 'I'], correctAnswer: 'O' },
-      { id: '4-3', type: 'letter-match', question: 'Match the lowercase letter: r', options: ['R', 'P', 'K', 'N'], correctAnswer: 'R' },
-      { id: '4-4', type: 'fill-blank', question: 'TR_E (has leaves)', options: ['E', 'A', 'I', 'O'], correctAnswer: 'E' },
-      { id: '4-5', type: 'fill-blank', question: 'B_RD (has wings)', options: ['I', 'A', 'O', 'U'], correctAnswer: 'I' },
-    ]
+    items: createLetterItems(level4Letters, 4)
   },
   {
     level: 5,
-    items: [
-      { id: '5-1', type: 'fill-blank', question: 'H_USE (where we live)', options: ['O', 'A', 'E', 'I'], correctAnswer: 'O' },
-      { id: '5-2', type: 'letter-match', question: 'Match the lowercase letter: g', options: ['G', 'Q', 'P', 'D'], correctAnswer: 'G' },
-      { id: '5-3', type: 'fill-blank', question: 'APP_E (red fruit)', options: ['L', 'R', 'N', 'M'], correctAnswer: 'L' },
-      { id: '5-4', type: 'letter-match', question: 'Match the uppercase letter: W', options: ['w', 'm', 'v', 'u'], correctAnswer: 'w' },
-      { id: '5-5', type: 'fill-blank', question: 'H_PPY (when you smile)', options: ['A', 'E', 'I', 'O'], correctAnswer: 'A' },
-    ]
+    items: createLetterItems(level5Letters, 5)
   }
 ];
 
@@ -178,14 +259,14 @@ export const pronunciationData: LevelData[] = [
   }
 ];
 
-// Learning content for each level - matches the test words
+// Learning content for each level - updated for complete alphabet
 export const learningContent = {
   caseRecognition: [
-    { level: 1, letters: ['A-a', 'B-b', 'C-c', 'D-d'], words: ['CAT', 'DOG'] },
-    { level: 2, letters: ['S-s', 'H-h', 'U-u', 'C-c', 'P-p'], words: ['SUN', 'HAT', 'CUP'] },
-    { level: 3, letters: ['F-f', 'R-r', 'O-o', 'G-g', 'P-p', 'M-m'], words: ['FROG', 'STAR', 'FISH'] },
-    { level: 4, letters: ['T-t', 'R-r', 'E-e', 'I-i', 'B-b'], words: ['MOON', 'TREE', 'BIRD'] },
-    { level: 5, letters: ['H-h', 'O-o', 'U-u', 'S-s', 'E-e', 'W-w', 'G-g'], words: ['HOUSE', 'APPLE', 'HAPPY'] },
+    { level: 1, letters: ['A-a', 'B-b', 'C-c', 'D-d', 'E-e'], words: [] },
+    { level: 2, letters: ['F-f', 'G-g', 'H-h', 'I-i', 'J-j', 'K-k'], words: [] },
+    { level: 3, letters: ['L-l', 'M-m', 'N-n', 'O-o', 'P-p', 'Q-q'], words: [] },
+    { level: 4, letters: ['R-r', 'S-s', 'T-t', 'U-u', 'V-v'], words: [] },
+    { level: 5, letters: ['W-w', 'X-x', 'Y-y', 'Z-z'], words: [] },
   ],
   pictureWord: [
     { level: 1, words: ['CAT', 'DOG', 'SUN', 'CUP', 'BED'] },

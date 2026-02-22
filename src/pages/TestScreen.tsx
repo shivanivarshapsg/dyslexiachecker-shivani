@@ -206,8 +206,17 @@ export default function TestScreen() {
   };
 
   const handleTestComplete = () => {
-    navigate("/");
-  };
+  navigate("/");
+};
+
+const openFlutterApp = () => {
+  window.location.href = "dyslexiaapp://open";
+
+  setTimeout(() => {
+    window.location.href =
+      "https://play.google.com/store/apps/details?id=com.example.dygraphia_localization";
+  }, 2000);
+};
 
   const getTestResult = (): TestResult | null => {
     if (levelResults.length === 0 && !currentLevelResult) return null;
@@ -319,13 +328,20 @@ export default function TestScreen() {
         )}
 
         {phase === "test-result" && (
-          <div className="py-8">
-            <ResultsCard
-              result={getTestResult()}
-              onContinue={handleTestComplete}
-            />
-          </div>
-        )}
+  <div className="py-8 flex flex-col items-center gap-6">
+    <ResultsCard
+      result={getTestResult()}
+      onContinue={handleTestComplete}
+    />
+
+    <Button
+      onClick={openFlutterApp}
+      className="text-lg px-8 py-6"
+    >
+      Proceed to Mobile Analysis
+    </Button>
+  </div>
+)}
       </main>
     </div>
   );

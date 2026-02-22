@@ -149,7 +149,7 @@ export const LearningPhase = ({
 
           {currentIndex === items.length - 1 ? (
             <Button variant="success" size="lg" onClick={onComplete}>
-              Start!
+              Start Test!
             </Button>
           ) : (
             <Button variant="default" size="lg" onClick={handleNext}>

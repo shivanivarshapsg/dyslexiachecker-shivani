@@ -48,7 +48,7 @@ const getImageEmoji = (key: string): string => {
 export default function TestScreen() {
   const navigate = useNavigate();
   const { testType } = useParams<{ testType: TestType }>();
-  const { updatePictureMatching, updateLetterRecognition, updatePronunciation, updateOverallRiskScore } = useUserResults();
+  const { updatePictureMatching, updateLetterRecognition, updatePronunciation, updateOverallRiskScore, getUserResults } = useUserResults();
   
   const [currentLevel, setCurrentLevel] = useState(1);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -58,6 +58,35 @@ export default function TestScreen() {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [levelResults, setLevelResults] = useState<LevelResult[]>([]);
   const [currentLevelResult, setCurrentLevelResult] = useState<LevelResult | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  // Resume from the next incomplete level
+  useEffect(() => {
+    const fetchStartLevel = async () => {
+      const { data } = await getUserResults();
+      if (data) {
+        let completed = 0;
+        switch (testType) {
+          case "case-recognition":
+            completed = data.letter_recognition_tests_completed ?? 0;
+            break;
+          case "picture-word":
+            completed = data.picture_matching_tests_completed ?? 0;
+            break;
+          case "pronunciation":
+            completed = data.pronunciation_tests_completed ?? 0;
+            break;
+        }
+        if (completed >= 5) {
+          navigate("/");
+          return;
+        }
+        setCurrentLevel(completed + 1);
+      }
+      setInitialLoading(false);
+    };
+    fetchStartLevel();
+  }, [testType]);
 
   // Get test data based on type
   const getTestData = useCallback(() => {
@@ -200,6 +229,14 @@ export default function TestScreen() {
       passed: allResults.every((r) => (r.correctAnswers / r.totalQuestions) >= 0.6),
     };
   };
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   if (!testType || !currentLevelData) {
     return (

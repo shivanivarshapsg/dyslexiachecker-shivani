@@ -27,30 +27,19 @@ export const ResultsCard = ({
   // Level completion view
   if (levelResult && isLevelComplete !== undefined) {
     const percentage = (levelResult.correctAnswers / levelResult.totalQuestions) * 100;
-    const passed = percentage >= 60;
-
     return (
       <div className="w-full max-w-lg mx-auto animate-pop">
         <div className="bg-card rounded-3xl shadow-card p-8 text-center">
-          {/* Trophy or retry icon */}
-          <div className={cn(
-            "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6",
-            passed ? "bg-success/20" : "bg-destructive/20"
-          )}>
-            {passed ? (
-              <Trophy className="w-12 h-12 text-success animate-bounce-soft" />
-            ) : (
-              <RotateCcw className="w-12 h-12 text-destructive" />
-            )}
+          {/* Trophy icon */}
+          <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 bg-success/20">
+            <Trophy className="w-12 h-12 text-success animate-bounce-soft" />
           </div>
 
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            {passed ? "Level Complete!" : "Try Again!"}
+            Level Complete!
           </h2>
           <p className="text-muted-foreground mb-6">
-            {passed 
-              ? "Great job! You're ready for the next level!"
-              : "You need 60% or more to pass. Let's try again!"}
+            Great job! You're ready for the next level!
           </p>
 
           {/* Stats grid */}
@@ -72,17 +61,10 @@ export const ResultsCard = ({
             </div>
           </div>
 
-          {passed ? (
-            <Button variant="success" size="lg" onClick={onContinue} className="w-full">
-              Continue
-              <ChevronRight className="w-6 h-6 ml-2" />
-            </Button>
-          ) : (
-            <Button variant="default" size="lg" onClick={onRetry} className="w-full">
-              <RotateCcw className="w-6 h-6 mr-2" />
-              Try Again
-            </Button>
-          )}
+          <Button variant="success" size="lg" onClick={onContinue} className="w-full">
+            Continue
+            <ChevronRight className="w-6 h-6 ml-2" />
+          </Button>
         </div>
       </div>
     );

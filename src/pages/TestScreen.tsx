@@ -162,31 +162,18 @@ export default function TestScreen() {
 
   const handleLevelContinue = () => {
     if (currentLevelResult) {
-      const passed = (currentLevelResult.correctAnswers / currentLevelResult.totalQuestions) >= 0.6;
+      setLevelResults((prev) => [...prev, currentLevelResult]);
       
-      if (passed) {
-        setLevelResults((prev) => [...prev, currentLevelResult]);
-        
-        if (currentLevel < 5) {
-          setCurrentLevel((prev) => prev + 1);
-          setPhase("learning");
-          setCurrentQuestion(0);
-          setCorrectAnswers(0);
-          setCurrentTime(0);
-        } else {
-          // Test complete
-          const allResults = [...levelResults, currentLevelResult];
-          setPhase("test-result");
-        }
+      if (currentLevel < 5) {
+        setCurrentLevel((prev) => prev + 1);
+        setPhase("learning");
+        setCurrentQuestion(0);
+        setCorrectAnswers(0);
+        setCurrentTime(0);
+      } else {
+        setPhase("test-result");
       }
     }
-  };
-
-  const handleRetry = () => {
-    setPhase("learning");
-    setCurrentQuestion(0);
-    setCorrectAnswers(0);
-    setCurrentTime(0);
   };
 
   const handleTestComplete = () => {
@@ -288,9 +275,8 @@ export default function TestScreen() {
             <ResultsCard
               result={null}
               levelResult={currentLevelResult}
-              isLevelComplete={(currentLevelResult.correctAnswers / currentLevelResult.totalQuestions) >= 0.6}
+              isLevelComplete={true}
               onContinue={handleLevelContinue}
-              onRetry={handleRetry}
             />
           </div>
         )}

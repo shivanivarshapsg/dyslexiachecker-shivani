@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserResults } from "@/hooks/useUserResults";
 import { TestCard } from "@/components/TestCard";
 import { Button } from "@/components/ui/button";
 import { Type, Image, Mic, Sparkles, BookOpen, Trophy, ChevronRight, LogIn, LogOut, User, BarChart3 } from "lucide-react";
@@ -8,12 +9,30 @@ import { Type, Image, Mic, Sparkles, BookOpen, Trophy, ChevronRight, LogIn, LogO
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut, loading } = useAuth();
+  const { getUserResults } = useUserResults();
   
-  const [progress] = useState({
+  const [progress, setProgress] = useState({
     caseRecognition: { completed: 0, unlocked: true },
-    pictureWord: { completed: 0, unlocked: true },
-    pronunciation: { completed: 0, unlocked: true },
+    pictureWord: { completed: 0, unlocked: false },
+    pronunciation: { completed: 0, unlocked: false },
   });
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      if (!user) return;
+      const { data } = await getUserResults();
+      if (data) {
+        const letterDone = (data.letter_recognition_tests_completed ?? 0) > 0;
+        const pictureDone = (data.picture_matching_tests_completed ?? 0) > 0;
+        setProgress({
+          caseRecognition: { completed: data.letter_recognition_tests_completed ?? 0, unlocked: true },
+          pictureWord: { completed: data.picture_matching_tests_completed ?? 0, unlocked: letterDone },
+          pronunciation: { completed: data.pronunciation_tests_completed ?? 0, unlocked: pictureDone },
+        });
+      }
+    };
+    fetchProgress();
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -110,7 +129,7 @@ const Index = () => {
               Your Learning Path
             </h2>
             <p className="text-muted-foreground">
-              Choose any test to begin your adventure!
+              Complete each test to unlock the next one!
             </p>
           </div>
 

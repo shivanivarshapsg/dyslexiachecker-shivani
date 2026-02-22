@@ -22,8 +22,8 @@ const Index = () => {
       if (!user) return;
       const { data } = await getUserResults();
       if (data) {
-        const letterDone = (data.letter_recognition_tests_completed ?? 0) > 0;
-        const pictureDone = (data.picture_matching_tests_completed ?? 0) > 0;
+        const letterDone = (data.letter_recognition_tests_completed ?? 0) >= 5;
+        const pictureDone = (data.picture_matching_tests_completed ?? 0) >= 5;
         setProgress({
           caseRecognition: { completed: data.letter_recognition_tests_completed ?? 0, unlocked: true },
           pictureWord: { completed: data.picture_matching_tests_completed ?? 0, unlocked: letterDone },

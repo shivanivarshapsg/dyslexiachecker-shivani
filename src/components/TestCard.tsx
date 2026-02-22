@@ -83,7 +83,7 @@ export const TestCard = ({
         variant={isLocked ? "outline" : "default"}
         className="w-full"
       >
-        {isLocked ? "Complete previous test" : isCompleted ? "Review" : "Start Test"}
+        {isLocked ? "Complete previous test" : isCompleted ? "Review" : "Start"}
       </Button>
     </div>
   );

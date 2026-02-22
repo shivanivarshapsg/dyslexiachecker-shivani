@@ -137,16 +137,6 @@ export const QuestionCard = ({
             </div>
             
             <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => speakWord(item.correctAnswer)}
-              className="mr-4"
-            >
-              <Volume2 className="w-6 h-6 mr-2" />
-              Listen First
-            </Button>
-
-            <Button
               variant={isRecording ? "destructive" : "default"}
               size="lg"
               onClick={startRecording}

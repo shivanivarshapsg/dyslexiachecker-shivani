@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      FinalDysgrahiaresult: {
+        Row: {
+          baseline_deviation: number | null
+          created_at: string | null
+          dysgraphia_type: string | null
+          dyslexia_result: string | null
+          id: string
+          letter_size_variation: number | null
+          letter_spacing_variation: number | null
+          shape_drawing_accuracy: number | null
+          stroke_smoothness: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          baseline_deviation?: number | null
+          created_at?: string | null
+          dysgraphia_type?: string | null
+          dyslexia_result?: string | null
+          id?: string
+          letter_size_variation?: number | null
+          letter_spacing_variation?: number | null
+          shape_drawing_accuracy?: number | null
+          stroke_smoothness?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          baseline_deviation?: number | null
+          created_at?: string | null
+          dysgraphia_type?: string | null
+          dyslexia_result?: string | null
+          id?: string
+          letter_size_variation?: number | null
+          letter_spacing_variation?: number | null
+          shape_drawing_accuracy?: number | null
+          stroke_smoothness?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -44,6 +86,7 @@ export type Database = {
       user_results: {
         Row: {
           created_at: string
+          dyslexia_result: string | null
           id: string
           letter_recognition_avg_time: number | null
           letter_recognition_confusion: number | null
@@ -61,6 +104,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          dyslexia_result?: string | null
           id?: string
           letter_recognition_avg_time?: number | null
           letter_recognition_confusion?: number | null
@@ -78,6 +122,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          dyslexia_result?: string | null
           id?: string
           letter_recognition_avg_time?: number | null
           letter_recognition_confusion?: number | null

@@ -55,50 +55,92 @@ export const QuestionCard = ({
     const recognition = new SpeechRecognition();
     
     recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    recognition.maxAlternatives = 3;
 
-    recognition.onstart = () => {
-      setIsRecording(true);
-      setTranscription("");
+    let bestTranscript = "";
+    let hasMatched = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const normalizeWord = (word: string) => {
+      return word.toUpperCase().trim().replace(/[^A-Z]/g, '');
     };
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript.toUpperCase().trim();
-      setTranscription(transcript);
+    const normalizedCorrect = normalizeWord(item.correctAnswer);
+
+    const finalize = (matched: boolean, displayText: string) => {
+      if (hasMatched) return;
+      hasMatched = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      recognition.stop();
       setIsRecording(false);
-      
-      // Normalize both strings: remove punctuation, extra spaces, convert to uppercase
-      const normalizeWord = (word: string) => {
-        return word
-          .toUpperCase()
-          .trim()
-          .replace(/[^A-Z]/g, ''); // Remove anything that's not a letter
-      };
-      
-      const normalizedTranscript = normalizeWord(transcript);
-      const normalizedCorrect = normalizeWord(item.correctAnswer);
-      
-      // EXACT match only - no partial matching
-      const isMatch = normalizedTranscript === normalizedCorrect;
-      
-      setSelectedAnswer(isMatch ? item.correctAnswer : transcript);
+
+      setTranscription(displayText);
+      setSelectedAnswer(matched ? item.correctAnswer : displayText);
       setShowResult(true);
-      
+
       setTimeout(() => {
-        onAnswer(isMatch);
+        onAnswer(matched);
         setSelectedAnswer(null);
         setShowResult(false);
         setTranscription("");
       }, 2500);
     };
 
-    recognition.onerror = () => {
-      setIsRecording(false);
+    recognition.onstart = () => {
+      setIsRecording(true);
+      setTranscription("");
+      // Auto-stop after 6 seconds if no match
+      timeoutId = setTimeout(() => {
+        if (!hasMatched) {
+          finalize(false, bestTranscript || "No speech detected");
+        }
+      }, 6000);
+    };
+
+    recognition.onresult = (event: any) => {
+      if (hasMatched) return;
+
+      // Check ALL results and alternatives for a match
+      for (let i = 0; i < event.results.length; i++) {
+        for (let j = 0; j < event.results[i].length; j++) {
+          const transcript = event.results[i][j].transcript;
+          const normalized = normalizeWord(transcript);
+
+          // Update best transcript with highest confidence final result
+          if (event.results[i].isFinal && (!bestTranscript || event.results[i][j].confidence > 0.5)) {
+            bestTranscript = transcript.toUpperCase().trim();
+          }
+
+          // Check if any alternative matches
+          if (normalized === normalizedCorrect) {
+            finalize(true, transcript.toUpperCase().trim());
+            return;
+          }
+        }
+      }
+
+      // Show interim text as feedback
+      const latestTranscript = event.results[event.results.length - 1][0].transcript;
+      setTranscription(latestTranscript.toUpperCase().trim());
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error === 'no-speech' || event.error === 'aborted') return;
+      if (!hasMatched) {
+        finalize(false, bestTranscript || "Could not hear you");
+      }
     };
 
     recognition.onend = () => {
-      setIsRecording(false);
+      if (!hasMatched) {
+        // If ended without match and we have a transcript, finalize
+        if (bestTranscript) {
+          finalize(false, bestTranscript);
+        }
+        setIsRecording(false);
+      }
     };
 
     recognition.start();

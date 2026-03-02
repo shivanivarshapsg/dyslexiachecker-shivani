@@ -334,12 +334,14 @@ const openFlutterApp = () => {
       onContinue={handleTestComplete}
     />
 
-    <Button
-      onClick={openFlutterApp}
-      className="text-lg px-8 py-6"
-    >
-      Proceed to Mobile Analysis
-    </Button>
+    {testType === "pronunciation" && (
+      <Button
+        onClick={openFlutterApp}
+        className="text-lg px-8 py-6"
+      >
+        Proceed to Mobile Analysis
+      </Button>
+    )}
   </div>
 )}
       </main>

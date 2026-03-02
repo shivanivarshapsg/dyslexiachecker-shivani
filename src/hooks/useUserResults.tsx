@@ -25,6 +25,7 @@ export interface UserResults {
   
   // Overall
   overall_risk_score: number;
+  dyslexia_result: string | null;
 }
 
 interface UpdatePictureMatchingParams {

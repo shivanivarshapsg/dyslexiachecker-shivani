@@ -4,13 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserResults } from "@/hooks/useUserResults";
 import { TestCard } from "@/components/TestCard";
 import { Button } from "@/components/ui/button";
-import { Type, Image, Mic, Sparkles, BookOpen, Trophy, ChevronRight, LogIn, LogOut, User, BarChart3 } from "lucide-react";
+import { Type, Image, Mic, Sparkles, BookOpen, Trophy, ChevronRight, LogIn, LogOut, User, BarChart3, Smartphone } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut, loading } = useAuth();
   const { getUserResults } = useUserResults();
   
+  const [allTestsDone, setAllTestsDone] = useState(false);
   const [progress, setProgress] = useState({
     caseRecognition: { completed: 0, unlocked: true },
     pictureWord: { completed: 0, unlocked: false },
@@ -24,6 +25,8 @@ const Index = () => {
       if (data) {
         const letterDone = (data.letter_recognition_tests_completed ?? 0) >= 5;
         const pictureDone = (data.picture_matching_tests_completed ?? 0) >= 5;
+        const pronDone = (data.pronunciation_tests_completed ?? 0) >= 5;
+        setAllTestsDone(letterDone && pictureDone && pronDone);
         setProgress({
           caseRecognition: { completed: data.letter_recognition_tests_completed ?? 0, unlocked: true },
           pictureWord: { completed: data.picture_matching_tests_completed ?? 0, unlocked: letterDone },
@@ -36,6 +39,29 @@ const Index = () => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const openFlutterApp = async () => {
+    const { data } = await getUserResults();
+    const params = new URLSearchParams();
+    
+    if (data) {
+      params.set("user_id", data.user_id || "");
+      params.set("picture_matching_accuracy", String(data.picture_matching_accuracy ?? 0));
+      params.set("picture_matching_avg_time", String(data.picture_matching_avg_time ?? 0));
+      params.set("letter_recognition_confusion", String(data.letter_recognition_confusion ?? 0));
+      params.set("letter_recognition_avg_time", String(data.letter_recognition_avg_time ?? 0));
+      params.set("pronunciation_wpm", String(data.pronunciation_wpm ?? 0));
+      params.set("pronunciation_phoneme_error", String(data.pronunciation_phoneme_error ?? 0));
+      params.set("pronunciation_risk_score", String(data.pronunciation_risk_score ?? 0));
+      params.set("overall_risk_score", String(data.overall_risk_score ?? 0));
+      params.set("dyslexia_result", data.dyslexia_result || "");
+    }
+
+    window.location.href = `dyslexiaapp://open?${params.toString()}`;
+    setTimeout(() => {
+      window.location.href = "https://play.google.com/store/apps/details?id=com.example.dygraphia_localization";
+    }, 2000);
   };
 
   return (
@@ -167,6 +193,22 @@ const Index = () => {
               onClick={() => navigate("/test/pronunciation")}
             />
           </div>
+
+          {allTestsDone && user && (
+            <div className="mt-10 text-center animate-pop">
+              <Button
+                onClick={openFlutterApp}
+                className="text-lg px-8 py-6 gap-2"
+                variant="hero"
+              >
+                <Smartphone className="w-6 h-6" />
+                Proceed to Mobile Analysis
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2">
+                All tests completed! Continue with handwriting analysis on the mobile app.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
